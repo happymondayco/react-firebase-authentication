@@ -161,14 +161,14 @@ class DefaultLoginToggle extends Component {
   constructor(props) {
     super(props);
 
-    this.state = { passwordOne: '', passwordTwo: '' };
+    this.state = { passwordOne: '' };
   }
 
   onSubmit = event => {
     event.preventDefault();
 
     this.props.onLink(this.state.passwordOne);
-    this.setState({ passwordOne: '', passwordTwo: '' });
+    this.setState({ passwordOne: '' });
   };
 
   onChange = event => {
@@ -183,10 +183,9 @@ class DefaultLoginToggle extends Component {
       onUnlink,
     } = this.props;
 
-    const { passwordOne, passwordTwo } = this.state;
+    const { passwordOne } = this.state;
 
-    const isInvalid =
-      passwordOne !== passwordTwo || passwordOne === '';
+    const isInvalid = passwordOne === '';
 
     return isEnabled ? (
       <button
@@ -204,13 +203,6 @@ class DefaultLoginToggle extends Component {
           onChange={this.onChange}
           type="password"
           placeholder="New Password"
-        />
-        <input
-          name="passwordTwo"
-          value={passwordTwo}
-          onChange={this.onChange}
-          type="password"
-          placeholder="Confirm New Password"
         />
 
         <button disabled={isInvalid} type="submit">

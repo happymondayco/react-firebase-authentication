@@ -106,7 +106,6 @@ class SignInGoogleBase extends Component {
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
         return this.props.firebase.user(socialAuthUser.user.uid).set({
-          username: socialAuthUser.user.displayName,
           email: socialAuthUser.user.email,
           roles: {},
         });
@@ -152,7 +151,6 @@ class SignInFacebookBase extends Component {
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
         return this.props.firebase.user(socialAuthUser.user.uid).set({
-          username: socialAuthUser.additionalUserInfo.profile.name,
           email: socialAuthUser.additionalUserInfo.profile.email,
           roles: {},
         });
@@ -198,7 +196,6 @@ class SignInTwitterBase extends Component {
       .then(socialAuthUser => {
         // Create a user in your Firebase Realtime Database too
         return this.props.firebase.user(socialAuthUser.user.uid).set({
-          username: socialAuthUser.additionalUserInfo.profile.name,
           email: socialAuthUser.additionalUserInfo.profile.email,
           roles: {},
         });
