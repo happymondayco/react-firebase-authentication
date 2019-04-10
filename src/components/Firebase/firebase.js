@@ -11,6 +11,14 @@ const config = {
   messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
 };
 
+const actionCodeSettings = {
+  // URL you want to redirect back to. The domain (www.example.com) for this
+  // URL must be whitelisted in the Firebase Console.
+  url: process.env.REACT_APP_EMAIL_AUTH_REDIRECT,
+  // This must be true.
+  handleCodeInApp: true,
+};
+
 class Firebase {
   constructor() {
     app.initializeApp(config);
@@ -57,6 +65,25 @@ class Firebase {
     this.auth.currentUser.sendEmailVerification({
       url: process.env.REACT_APP_CONFIRMATION_EMAIL_REDIRECT,
     });
+
+  doSendEmailSignIn = (email) =>
+    this.auth.sendSignInLinkToEmail(email, actionCodeSettings)
+      .then(function() {
+        // The link was successfully sent. Inform the user.
+        // Save the email locally so you don't need to ask the user for it again
+        // if they open the link on the same device.
+        window.localStorage.setItem('emailForSignIn', email);
+      })
+      .catch(function(error) {
+        // Some error occurred, you can inspect the code: error.code
+        console.log(error);
+    });
+
+  isSignInWithEmailLink = () => this.auth.isSignInWithEmailLink(window.location.href);
+
+  signInWithEmailLink = (email, href) => this.auth.signInWithEmailLink(email, href);
+
+  hasSignedInWithEmail = (email) => this.auth.fetchSignInMethodsForEmail(email)
 
   doPasswordUpdate = password =>
     this.auth.currentUser.updatePassword(password);

@@ -1,52 +1,34 @@
 import React from 'react';
-import * as ROUTES from '../../constants/routes';
+
 import AuthUserContext from './context';
 import { withFirebase } from '../Firebase';
+
+const needsEmailVerification = authUser =>
+  authUser &&
+  !authUser.emailVerified &&
+  authUser.providerData
+    .map(provider => provider.providerId)
+    .includes('password');
 
 const withEmailVerification = Component => {
   class WithEmailVerification extends React.Component {
     constructor(props) {
       super(props);
 
-      this.state = { isSent: false, needsVerification: true };
+      this.state = { isSent: false };
     }
 
-    componentDidMount() {
-      this.needsEmailVerification(this.context)
-    }
-
-    onSendEmailSignIn = (authUser) => {
+    onSendEmailVerification = () => {
       this.props.firebase
-        .doSendEmailSignIn(authUser.email)
+        .doSendEmailVerification()
         .then(() => this.setState({ isSent: true }));
     };
 
-    needsEmailVerification = (authUser) => {
-      if(authUser) {
-        this.props.firebase.hasSignedInWithEmail(authUser.email)
-        .then(function(signInMethods) {
-          debugger;
-          const needsVerification = authUser &&
-          !signInMethods.includes("emailLink") &&
-          authUser.providerData
-          .map(provider => provider.providerId)
-          .includes('password');
-          this.setState({ verified: !needsVerification })
-          if(needsVerification) {
-            this.props.firebase.doSignOut()
-            .then(() => {
-              this.props.history.push(ROUTES.HOME);
-            })
-          }
-        }.bind(this));
-      }
-    }
-
     render() {
       return (
-        <div>
-          {
-            this.state.needsVerification ? (
+        <AuthUserContext.Consumer>
+          {authUser =>
+            needsEmailVerification(authUser) ? (
               <div>
                 {this.state.isSent ? (
                   <p>
@@ -64,22 +46,20 @@ const withEmailVerification = Component => {
 
                 <button
                   type="button"
-                  onClick={this.onSendEmailSignIn}
+                  onClick={this.onSendEmailVerification}
                   disabled={this.state.isSent}
                 >
                   Send confirmation E-Mail
                 </button>
               </div>
             ) : (
-            <Component {...this.props} />
+              <Component {...this.props} />
             )
           }
-        </div>
+        </AuthUserContext.Consumer>
       );
     }
   }
-
-  WithEmailVerification.contextType = AuthUserContext;
 
   return withFirebase(WithEmailVerification);
 };
